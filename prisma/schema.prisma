@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Courses {
+  id           Int            @id @default(autoincrement())
+  title        String
+  imageSrc     String
+  UserProgress UserProgress[]
+  Units        Units[]
+}
+
+model Units {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  course      Courses   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId    Int
+  order       Int
+  Lessons     Lessons[]
+}
+
+model Lessons {
+  id         Int          @id @default(autoincrement())
+  title      String
+  unit       Units        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId     Int
+  order      Int
+  Challenges Challenges[]
+}
+
+model Challenges {
+  id                Int                 @id @default(autoincrement())
+  lesson            Lessons             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId          Int
+  type              String
+  question          String
+  order             Int
+  ChallengeOptions  ChallengeOptions[]
+  ChallengeProgress ChallengeProgress[]
+}
+
+model ChallengeOptions {
+  id          Int        @id @default(autoincrement())
+  challenge   Challenges @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId Int
+  text        String
+  correct     Boolean
+  imageSrc    String?
+  audioSrc    String?
+}
+
+model ChallengeProgress {
+  id          Int        @id @default(autoincrement())
+  challenge   Challenges @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId Int
+  userId      String
+  completed  Boolean    @default(false)
+}
+
+model UserProgress {
+  userId         String  @id
+  userName       String  @default("User")
+  userImageSrc   String  @default("/mascot.svg")
+  activeCourse   Courses @relation(fields: [activeCourseId], references: [id], onDelete: Cascade)
+  activeCourseId Int
+  hearts         Int     @default(5)
+  points         Int     @default(0)
+}
