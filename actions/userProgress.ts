@@ -56,3 +56,59 @@ export const upsertUserProgress = async (courseId: number) => {
     revalidatePath("/learn")
     redirect("/learn")
 }
+
+export const reduceHearts = async (challengeId: number) => {
+    const { userId } = await auth()
+
+    if (!userId) {
+        throw new Error("Unauthorized")
+    }
+
+    const currentUserProgress = await getUserProgress()
+
+    const challenge = await prisma.challenges.findFirst({
+        where: {
+            id: challengeId
+        }
+    })
+
+    if (!challenge) {
+        throw new Error("Challenge not found")
+    }
+
+    const lessonId = challenge.lessonId
+
+    const existingChallengeProgress = await prisma.challengeProgress.findFirst({
+        where: {
+            userId,
+            challengeId
+        }
+    })
+
+    const isPractice = !!existingChallengeProgress
+
+    if (isPractice) return { error: "practice" }
+
+    if (!currentUserProgress) {
+        throw new Error("User progress not found")
+    }
+
+    if (currentUserProgress.hearts === 0) {
+        return { error: "hearts" }
+    }
+
+    await prisma.userProgress.update({
+        data: {
+            hearts: Math.max(currentUserProgress.hearts - 1, 0)
+        },
+        where: {
+            userId
+        }
+    })
+
+    revalidatePath("/learn")
+    revalidatePath("/shop")
+    revalidatePath("/quests")
+    revalidatePath("/leaderboard")
+    revalidatePath(`/lesson/${lessonId}`)
+}
