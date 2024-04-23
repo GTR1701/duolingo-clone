@@ -1,23 +1,24 @@
 "use client";
-
-import {
-	ChallengeOptions,
-	ChallengeProgress,
-	Challenges,
-} from "@prisma/client";
 import { useState, useTransition } from "react";
+
 import { Header } from "./Header";
-import QuestionBubble from "./QuestionBubble";
 import { Challenge } from "./Challenge";
-import Footer from "./Footer";
-import { upsertChallengeProgress } from "@/actions/challengeProgress";
-import { toast } from "sonner";
-import { reduceHearts } from "@/actions/userProgress";
-import { useAudio, useWindowSize } from "react-use";
-import Image from "next/image";
+import QuestionBubble from "./QuestionBubble";
 import ResultCard from "./ResultCard";
+import Footer from "./Footer";
+
+import { useHeartsModal } from "@/store/useHeartsModal";
+import { upsertChallengeProgress } from "@/actions/challengeProgress";
+import { reduceHearts } from "@/actions/userProgress";
+
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAudio, useMount, useWindowSize } from "react-use";
+
 import Confetti from "react-confetti";
+import { toast } from "sonner";
+import { ChallengeOptions, Challenges } from "@prisma/client";
+import { usePracticeModal } from "@/store/usePracticeModal";
 
 type Props = {
 	initialLessonId: number;
@@ -37,6 +38,14 @@ export const Quiz = ({
 	initialPercentage,
 	userSubscription,
 }: Props) => {
+	const { open: openHeartsModal } = useHeartsModal();
+	const { open: openPracticeModal } = usePracticeModal();
+
+	useMount(() => {
+		if(initialPercentage === 100) {
+			openPracticeModal();
+		}
+	})
 	const { width, height } = useWindowSize();
 	const router = useRouter();
 
@@ -50,11 +59,14 @@ export const Quiz = ({
 		src: "/incorrect.wav",
 	});
 	const [finishAudio] = useAudio({
-		src: "/finish.mp3", autoPlay: true
+		src: "/finish.mp3",
+		autoPlay: true,
 	});
 
 	const [hearts, setHearts] = useState(initialHearts);
-	const [percentage, setPercentage] = useState(initialPercentage);
+	const [percentage, setPercentage] = useState(() => {
+		return initialPercentage === 100 ? 0 : initialPercentage;
+	});
 	const [challenges] = useState(initialLessonChallenges);
 
 	const [activeIndex, setActiveIndex] = useState(() => {
@@ -102,7 +114,7 @@ export const Quiz = ({
 				upsertChallengeProgress(challenge.id)
 					.then((res) => {
 						if (res?.error === "hearts") {
-							console.log("No hearts");
+							openHeartsModal();
 							return;
 						}
 
@@ -124,7 +136,7 @@ export const Quiz = ({
 				reduceHearts(challenge.id)
 					.then((res) => {
 						if (res?.error === "hearts") {
-							console.error("No hearts");
+							openHeartsModal();
 							return;
 						}
 

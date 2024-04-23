@@ -218,3 +218,28 @@ export const getLessonPercentage = cache(async () => {
 
     return percentage
 })
+
+export const getUserSubscription = cache(async () => {
+    const {userId} = await auth()
+
+    if (!userId) {
+        return null
+    }
+
+    const data = await prisma.userSubscription.findFirst({
+        where: {
+            userId
+        }
+    })
+
+    if(!data) {
+        return null
+    }
+
+    const isActive = data.stripePriceId && data.stripeCurrentPeriodEnd?.getTime()! + 86_400_000 > Date.now()
+
+    return {
+        ...data,
+        isActive: !!isActive
+    }
+})

@@ -1,6 +1,6 @@
 "use client";
 
-import { useExitModal } from "@/store/useExitModal";
+import { useHeartsModal } from "@/store/useHeartsModal";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -13,14 +13,19 @@ import {
 import Image from "next/image";
 import { Button } from "../ui/button";
 
-export const ExitModal = () => {
+export const HeartsModal = () => {
 	const router = useRouter();
 	const [isClient, setIsClient] = useState(false);
-	const { isOpen, open, close } = useExitModal();
+	const { isOpen, open, close } = useHeartsModal();
 
 	useEffect(() => {
 		setIsClient(true);
 	}, []);
+
+    const onClick = () => {
+        close();
+        router.push("/store");
+    }
 
 	if (!isClient) return null;
 
@@ -29,17 +34,17 @@ export const ExitModal = () => {
 			<DialogContent className="max-w-md">
 				<div className="flex items-center w-full justify-center mb-5">
 					<Image
-						src="/mascot_sad.svg"
+						src="/mascot_bad.svg"
 						alt="Mascot"
 						height={80}
 						width={80}
 					/>
 				</div>
 				<DialogTitle className="text-center font-bold text-2xl">
-					Wait, don&apos;t go!
+					You ran out of hearts!
 				</DialogTitle>
 				<DialogDescription className="text-center text-base">
-					You&apos;re about to leave this lesson. Are you sure?
+					Get Pro for unlimited hearts, or purchase them in the store.
 				</DialogDescription>
 				<DialogFooter className="mb-4">
 					<div className="flex flex-col gap-y-4 w-full">
@@ -47,12 +52,12 @@ export const ExitModal = () => {
 							variant="primary"
 							size="lg"
 							className="w-full"
-							onClick={close}
+							onClick={onClick}
 						>
-							Keep Learning
+							Get unlimited hearts
 						</Button>
 						<Button
-							variant="dangerOutline"
+							variant="primaryOutline"
 							size="lg"
 							className="w-full"
 							onClick={() => {
@@ -60,7 +65,7 @@ export const ExitModal = () => {
 								router.push("/learn");
 							}}
 						>
-							End Session
+							No thanks
 						</Button>
 					</div>
 				</DialogFooter>
