@@ -31,13 +31,13 @@ export const UserProgress = ({
 				</Button>
 			</Link>
             <Link href="/shop">
-                <Button variant="ghost" className="text-orange-500">
+                <Button variant="ghost" className="dark:text-orange-300 text-orange-500">
                     <Image src="/points.svg" height={28} width={28} alt="Points" className="mr-2" />
                     {points}
                 </Button>
             </Link>
             <Link href="/shop">
-                <Button variant="ghost" className="text-rose-500">
+                <Button variant="ghost" className="dark:text-rose-500 text-rose-500">
                     <Image src="/heart.svg" height={22} width={22} alt="Hearts" className="mr-2" />
                     {hasActiveSubscription ? <InfinityIcon className="h-4 w-4 stroke-[3]" /> : hearts}
                     

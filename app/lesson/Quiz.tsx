@@ -50,8 +50,8 @@ export const Quiz = ({
 	const router = useRouter();
 
 	const [pending, startTransition] = useTransition();
-
 	const [lessonId] = useState(initialLessonId);
+
 	const [correctAudio, _c, correctControls] = useAudio({
 		src: "/correct.wav",
 	});
@@ -68,6 +68,7 @@ export const Quiz = ({
 		return initialPercentage === 100 ? 0 : initialPercentage;
 	});
 	const [challenges] = useState(initialLessonChallenges);
+	const [incorrectChallenges, setIncorrectChallenges] = useState<Challenges[]>([])
 
 	const [activeIndex, setActiveIndex] = useState(() => {
 		const uncompletedIndex = challenges.findIndex(
@@ -145,6 +146,8 @@ export const Quiz = ({
 						if (!res?.error) {
 							setHearts((prev) => Math.max(prev - 1, 0));
 						}
+						setIncorrectChallenges([...incorrectChallenges, challenge])
+						
 					})
 					.catch(() =>
 						toast.error("Something went wrong. Please try again.")
@@ -153,9 +156,10 @@ export const Quiz = ({
 		}
 	};
 
+	//Finish Screen
 	if (challenge === null || challenge === undefined || !challenge) {
 		return (
-			<>
+			<div className="dark:bg-[#020817] h-[calc(100vh-140px)]">
 				{finishAudio}
 				<Confetti
 					recycle={false}
@@ -179,7 +183,7 @@ export const Quiz = ({
 						height={50}
 						className="block lg:hidden"
 					/>
-					<h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
+					<h1 className="text-xl lg:text-3xl font-bold text-neutral-700 dark:text-neutral-100">
 						Great Job! <br /> You&apos;ve completed the lesson.
 					</h1>
 					<div className="flex items-center gap-x-4 w-full">
@@ -195,7 +199,7 @@ export const Quiz = ({
 					status="completed"
 					onCheck={() => router.push("/learn")}
 				/>
-			</>
+			</div>
 		);
 	}
 
@@ -213,10 +217,10 @@ export const Quiz = ({
 				percentage={percentage}
 				hasActiveSubscription={!!userSubscription?.isActive}
 			/>
-			<div className="flex-1">
+			<div className="flex-1 dark:bg-[#020817]">
 				<div className="h-full flex items-center justify-center">
 					<div className="lg:min-h-[350px] lg:w-[600px] w-full lg:px-0 flex flex-col gap-y-12">
-						<h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
+						<h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700 dark:text-neutral-100">
 							{title}
 						</h1>
 						<div>

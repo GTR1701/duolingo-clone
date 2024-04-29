@@ -38,7 +38,7 @@ const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
 			<div className="flex items-center w-full p-4 gap-x-4 border-t-2">
 				<Image src="/heart.svg" alt="Heart" width={60} height={60} />
 				<div className="flex-1">
-					<p className="text-neutral-700 text-base lg:text-xl font-bold">
+					<p className="text-neutral-700 dark:text-neutral-100 text-base lg:text-xl font-bold">
 						Refill hearts
 					</p>
 				</div>
@@ -69,7 +69,7 @@ const Items = ({ hearts, points, hasActiveSubscription }: Props) => {
 					width={60}
 				/>
 				<div className="flex-1">
-					<p className="text-neutral-700 text-base lg:text-xl font-bold">
+					<p className="text-neutral-700 dark:text-neutral-100 text-base lg:text-xl font-bold">
 						Unlimited Hearts
 					</p>
 				</div>

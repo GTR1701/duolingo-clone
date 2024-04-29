@@ -44,14 +44,14 @@ const Card = ({
 		<div
 			onClick={handleClick}
 			className={cn(
-				"h-full border-2 rounded-xl border-b-4 hover:bg-black/5 p-4 lg:p-6 cursor-pointer active:border-b-2",
-				selected && "border-sky-300 bg-sky-100 hover:bg-sky-100",
+				"h-full border-2 rounded-xl border-b-4 hover:bg-black/5 p-4 lg:p-6 cursor-pointer active:border-b-2 dark:bg-slate-800 dark:border-slate-700",
+				selected && "border-sky-300 bg-sky-100 hover:bg-sky-100 dark:border-sky-300 dark:bg-sky-200 dark:hover:bg-sky-200",
 				selected &&
 					status === "correct" &&
-					"border-green-300 bg-green-100 hover:bg-green-100",
+					"border-green-300 bg-green-100 hover:bg-green-100 dark:border-green-300 dark:bg-green-100 dark:hover:bg-green-100",
 				selected &&
 					status === "wrong" &&
-					"border-rose-300 bg-rose-100 hover:bg-rose-100",
+					"border-rose-300 bg-rose-100 hover:bg-rose-100 dark:border-rose-300 dark:bg-rose-100 dark:hover:bg-rose-100",
 				disabled && "poiner-events-none hover:bg-white",
 				type === "ASSIST" && "lg:p-3 w-full"
 			)}
@@ -71,7 +71,7 @@ const Card = ({
 				{type === "ASSIST" && <div />}
 				<p
 					className={cn(
-						"text-neutral-600 text-sm lg:text-base",
+						"text-muted-foreground text-sm lg:text-base",
 						selected &&
 							"text-sky-500",
 						selected &&
@@ -84,10 +84,10 @@ const Card = ({
 				>
 					{text}
 				</p>
-                <div className={cn("lg:w-[30px] lg:h-[30px] h-[20px] w-[20-px] border-2 flex items-center justify-center rounded-lg text-neutral-400 lg:text-[15px] text-xs font-semibold",
-                selected && "border-sky-500 text-sky-500",
-                selected && status === "correct" && "border-green-500 text-green-500",
-                selected && status === "wrong" && "border-rose-500 text-rose-500",
+                <div className={cn("lg:w-[30px] lg:h-[30px] h-[20px] w-[20-px] border-2 flex items-center justify-center rounded-lg dark:border-slate-700 text-neutral-400 lg:text-[15px] text-xs font-semibold",
+                selected && "border-sky-500 text-sky-500 dark:border-sky-500 dark:text-sky-500",
+                selected && status === "correct" && "border-green-500 text-green-500 dark:border-green-500 dark:text-green-500",
+                selected && status === "wrong" && "border-rose-500 text-rose-500 dark:border-rose-500 dark:text-rose-500",
                 )}>
                     {shortcut}
                 </div>

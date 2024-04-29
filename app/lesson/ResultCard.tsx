@@ -27,8 +27,8 @@ const ResultCard = ({ value, variant }: Props) => {
 			</div>
 			<div
 				className={cn(
-					"rounded-2xl bg-white items-center flex justify-center p-6 font-bold text-lg",
-                    variant === "points" && "text-orange-400",
+					"rounded-2xl bg-white dark:bg-[#020817] items-center flex justify-center p-6 font-bold text-lg",
+                    variant === "points" && "text-orange-300",
                     variant === "hearts" && "text-rose-400"
 				)}
 			>

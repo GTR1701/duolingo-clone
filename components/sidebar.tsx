@@ -1,15 +1,20 @@
+"use client";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { SidebarItem } from "./SidebarItem";
 import { ClerkLoaded, ClerkLoading, UserButton } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
+import { Loader, Moon, Sun } from "lucide-react";
+import { Toggle } from "./ui/toggle";
+import { useStore } from "zustand";
+import { useColorTheme } from "@/store/useColorTheme";
 
 type Props = {
 	className?: string;
 };
 
 export const Sidebar = ({ className }: Props) => {
+	const { isDark, setDarkTheme, setLightTheme } = useStore(useColorTheme);
 	return (
 		<div
 			className={cn(
@@ -44,14 +49,20 @@ export const Sidebar = ({ className }: Props) => {
 				/>
 				<SidebarItem label="shoup" href="/shop" iconSrc="/shop.svg" />
 			</div>
-            <div className="p-4">
-                <ClerkLoading>
-                    <Loader className="h-5 w-5 text-muted-foreground animate-spin" />   
-                </ClerkLoading>
-                <ClerkLoaded>
-                    <UserButton afterSignOutUrl="/" />
-                </ClerkLoaded>
-            </div>
+			<div className="p-4 flex flex-row justify-between items-center">
+				<ClerkLoading>
+					<Loader className="h-5 w-5 text-muted-foreground animate-spin" />
+				</ClerkLoading>
+				<ClerkLoaded>
+					<UserButton afterSignOutUrl="/" />
+				</ClerkLoaded>
+				<Toggle
+					className="p-2"
+					onClick={isDark ? setLightTheme : setDarkTheme}
+				>
+					{isDark ? <Moon /> : <Sun />}
+				</Toggle>
+			</div>
 		</div>
 	);
 };

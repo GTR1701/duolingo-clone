@@ -22,27 +22,35 @@ model Courses {
 }
 
 model Units {
-  id          Int       @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   title       String
   description String
-  course      Courses   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Courses      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    Int
   order       Int
-  Lessons     Lessons[]
+  Excercises  Excercises[]
 }
 
-model Lessons {
+model Excercises {
   id         Int          @id @default(autoincrement())
   title      String
   unit       Units        @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId     Int
   order      Int
   Challenges Challenges[]
+  Lessons    Lessons[]
+}
+
+model Lessons {
+  id          Int        @id @default(autoincrement())
+  excerciseId Int
+  excercise   Excercises @relation(fields: [excerciseId], references: [id], onDelete: Cascade)
+  order       Int
 }
 
 model Challenges {
   id                Int                 @id @default(autoincrement())
-  lesson            Lessons             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  excercise         Excercises          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId          Int
   type              String
   question          String

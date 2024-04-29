@@ -5,6 +5,7 @@ export default function ButtonsPage() {
 	return (
 		<div className="p-4 space-y-4 flex flex-col max-w-[200px]">
 			<Button>Default</Button>
+			<Button variant="locked">Locked</Button>
 			<Button variant="primary">Primary</Button>
 			<Button variant="primaryOutline">Primary outline</Button>
 			<Button variant="secondary">Secondary</Button>

@@ -38,7 +38,7 @@ const LearderboardPage = async () => {
 			<FeedWrapper>
 				<div className="w-full flex flex-col items-center">
 					<Image src="/leaderboard.svg" alt="Leaderboard" width={90} height={90} />
-					<h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+					<h1 className="text-center font-bold text-neutral-800 text-2xl my-6 dark:text-neutral-100">
 						Leaderboard
 					</h1>
 					<p className="text-muted-foreground text-center text-lg mb-6">
@@ -53,7 +53,7 @@ const LearderboardPage = async () => {
 							<Avatar className="border bg-green-500 h-12 w-12 ml-3 mr-6">
 								<AvatarImage className="object-cover" src={userProgress.userImageSrc || "/mascot.svg"} />
 							</Avatar>
-							<p className="font-bold text-neutral-800 flex-1">
+							<p className="font-bold text-neutral-800 dark:text-neutral-100 flex-1">
 								{userProgress.userName}
 							</p>
 							<p className="text-muted-foreground">

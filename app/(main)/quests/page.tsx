@@ -71,7 +71,7 @@ const QuestsPage = async () => {
 						width={90}
 						height={90}
 					/>
-					<h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+					<h1 className="text-center font-bold text-neutral-800 dark:text-neutral-100 text-2xl my-6">
 						Quests
 					</h1>
 					<p className="text-muted-foreground text-center text-lg mb-6">
@@ -94,7 +94,7 @@ const QuestsPage = async () => {
 										height={60}
 									/>
 									<div className="flex flex-col gap-y-4 w-full">
-										<p className="text-neutral-700 text-xl font-bold">
+										<p className="text-neutral-700 dark:text-neutral-100 text-xl font-bold">
 											{quest.title}
 										</p>
 										<Progress value={progress} />

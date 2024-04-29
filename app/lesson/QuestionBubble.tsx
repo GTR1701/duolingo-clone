@@ -20,7 +20,7 @@ const QuestionBubble = ({ question }: Props) => {
 				alt="Mascot"
 				className="block lg:hidden"
 			/>
-			<div className="relative py-2 px-4 border-2 rounded-xl text-sm lg:text-base">
+			<div className="relative py-2 px-4 border-2 rounded-xl text-sm lg:text-base dark:text-neutral-100">
 				{question}
 				<div className="absolute -left-3 top-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 transform -translate-y-1/2 rotate-90" />
 			</div>

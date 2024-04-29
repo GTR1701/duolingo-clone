@@ -36,10 +36,10 @@ const ShopPage = async () => {
 			<FeedWrapper>
 				<div className="w-full flex flex-col items-center">
 					<Image src="/shop.svg" alt="Shop" width={90} height={90} />
-					<h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+					<h1 className="text-center font-bold text-neutral-800 dark:text-neutral-100 text-2xl my-6">
 						Shoup
 					</h1>
-					<p className="text-muted-foreground text-center text-lg mb-6">
+					<p className="text-muted-foreground text-center text-lg mb-6 ">
 						Spend your points on cool stuff in the shoup!
 					</p>
 					<Items

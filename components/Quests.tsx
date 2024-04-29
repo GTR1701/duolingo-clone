@@ -64,7 +64,7 @@ const Quests = ({ points}: Props) => {
                             height={60}
                         />
                         <div className="flex flex-col gap-y-2 w-full">
-                            <p className="text-neutral-700 text-sm font-bold">
+                            <p className="text-neutral-700 dark:text-neutral-100 text-sm font-bold">
                                 {quest.title}
                             </p>
                             <Progress value={progress} />
