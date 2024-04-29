@@ -29,6 +29,21 @@ export const getCourseById = cache(async (id: number) => {
     const data = await prisma.courses.findFirst({
         where: {
             id
+        },
+        include: {
+            Units: {
+                orderBy: {
+                    order: "asc"
+                },
+                include: {
+                    Lessons: {
+                        orderBy: {
+                            order: "asc"
+                        }
+                    }
+                }
+            
+            }
         }
     })
 
@@ -46,10 +61,19 @@ export const getUnits = cache(async () => {
         where: {
             courseId: userProgress.activeCourseId
         },
+        orderBy: {
+            order: "asc"
+        },
         include: {
             Lessons: {
+                orderBy: {
+                    order: "asc"
+                },
                 include: {
                     Challenges: {
+                        orderBy: {
+                            order: "asc"
+                        },
                         include: {
                             ChallengeProgress: {
                                 where: {
@@ -242,4 +266,27 @@ export const getUserSubscription = cache(async () => {
         ...data,
         isActive: !!isActive
     }
+})
+
+export const getTopUsers = cache(async () => {
+    const {userId} = await auth()
+
+    if (!userId) {
+        return []
+    }
+    
+    const data = await prisma.userProgress.findMany({
+        orderBy: {
+            points: "desc"
+        },
+        take: 10,
+        select: {
+            userId: true,
+            userName: true,
+            userImageSrc: true,
+            points: true,
+        }
+    })
+
+    return data
 })

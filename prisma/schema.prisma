@@ -70,20 +70,42 @@ model ChallengeProgress {
 }
 
 model UserProgress {
-  userId         String  @id
-  userName       String  @default("User")
-  userImageSrc   String  @default("/mascot.svg")
-  activeCourse   Courses @relation(fields: [activeCourseId], references: [id], onDelete: Cascade)
+  userId         String       @id
+  userName       String       @default("User")
+  userImageSrc   String       @default("/mascot.svg")
+  activeCourse   Courses      @relation(fields: [activeCourseId], references: [id], onDelete: Cascade)
   activeCourseId Int
-  hearts         Int     @default(5)
-  points         Int     @default(0)
+  hearts         Int          @default(5)
+  points         Int          @default(0)
+  experience     Int          @default(0)
+  UserQuests     UserQuests[]
+}
+
+model Quests {
+  id          Int          @id @default(autoincrement())
+  type        String
+  title       String
+  objective   Int
+  rewardType  String
+  rewardValue Int
+  UserQuests  UserQuests[]
+}
+
+model UserQuests {
+  id           Int          @id @default(autoincrement())
+  userId       String
+  questId      Int
+  completed    Boolean      @default(false)
+  progress     Int          @default(0)
+  UserProgress UserProgress @relation(fields: [userId], references: [userId])
+  Quests       Quests       @relation(fields: [questId], references: [id])
 }
 
 model UserSubscription {
-  id                     Int    @id @default(autoincrement())
-  userId                 String @unique
-  stripeCustomerId       String @unique
-  stripeSubscriptionId   String @unique
+  id                     Int      @id @default(autoincrement())
+  userId                 String   @unique
+  stripeCustomerId       String   @unique
+  stripeSubscriptionId   String   @unique
   stripePriceId          String
-  stripeCurrentPeriodEnd DateTime 
+  stripeCurrentPeriodEnd DateTime
 }

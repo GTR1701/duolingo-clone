@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/prisma/prisma"
-import { getCourseById, getUserProgress } from "@/prisma/queries"
+import { getCourseById, getUserProgress, getUserSubscription } from "@/prisma/queries"
 import { auth, currentUser } from "@clerk/nextjs"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
@@ -20,9 +20,9 @@ export const upsertUserProgress = async (courseId: number) => {
         throw new Error("Course not found")
     }
 
-    // if(!course.units.length || !course.units[0].lessons.length) {
-    //     throw new Error("Course is empty")
-    // }
+    if(!course.Units.length || !course.Units[0].Lessons.length) {
+        throw new Error("Course is empty")
+    }
 
     const existingUserProgress = await getUserProgress()
 
@@ -65,6 +65,8 @@ export const reduceHearts = async (challengeId: number) => {
     }
 
     const currentUserProgress = await getUserProgress()
+    const userSubscription = await getUserSubscription()
+
 
     const challenge = await prisma.challenges.findFirst({
         where: {
@@ -91,6 +93,10 @@ export const reduceHearts = async (challengeId: number) => {
 
     if (!currentUserProgress) {
         throw new Error("User progress not found")
+    }
+
+    if(userSubscription?.isActive) {
+        return { error: "subscription" }
     }
 
     if (currentUserProgress.hearts === 0) {

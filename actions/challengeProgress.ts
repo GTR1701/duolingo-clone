@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/prisma/prisma"
-import { getUserProgress } from "@/prisma/queries"
+import { getUserProgress, getUserSubscription } from "@/prisma/queries"
 import { auth } from "@clerk/nextjs"
 import { revalidatePath } from "next/cache"
 
@@ -13,6 +13,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     }
 
     const currentUserProgress = await getUserProgress()
+    const userSubscription = await getUserSubscription()
 
     if (!currentUserProgress) {
         throw new Error("User progress not found")
@@ -39,7 +40,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
     const isPractice = !!existingChallengeProgress
 
-    if (currentUserProgress.hearts === 0 && !isPractice) {
+    if (currentUserProgress.hearts === 0 && !isPractice && !userSubscription?.isActive) {
         return { error: "hearts" }
     }
 

@@ -17,7 +17,7 @@ import { useAudio, useMount, useWindowSize } from "react-use";
 
 import Confetti from "react-confetti";
 import { toast } from "sonner";
-import { ChallengeOptions, Challenges } from "@prisma/client";
+import { ChallengeOptions, Challenges, UserSubscription } from "@prisma/client";
 import { usePracticeModal } from "@/store/usePracticeModal";
 
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
 	})[];
 	initialHearts: number;
 	initialPercentage: number;
-	userSubscription: any;
+	userSubscription: (UserSubscription & {isActive: boolean}) | null;
 };
 
 export const Quiz = ({

@@ -5,6 +5,8 @@ import { getCourseById, getUserProgress, getUserSubscription } from "@/prisma/qu
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import Items from "./Items";
+import Promo from "@/components/Promo";
+import Quests from "@/components/Quests";
 
 const ShopPage = async () => {
 	const userProgress = await getUserProgress();
@@ -17,6 +19,7 @@ const ShopPage = async () => {
 	}
 
 	const userSubscription = await getUserSubscription();
+	const isPro = !!userSubscription?.isActive;
 
 	return (
 		<div className="flex flex-row-reverse gap-[48px] px-6">
@@ -27,6 +30,8 @@ const ShopPage = async () => {
 					points={userProgress.points}
 					hasActiveSubscription={!!userSubscription?.isActive}
 				/>
+				{!isPro && <Promo />}
+				<Quests points={userProgress.points} />
 			</StickyWrapper>
 			<FeedWrapper>
 				<div className="w-full flex flex-col items-center">

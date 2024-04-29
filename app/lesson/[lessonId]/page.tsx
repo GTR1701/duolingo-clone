@@ -1,4 +1,4 @@
-import { getLesson, getUserProgress } from "@/prisma/queries";
+import { getLesson, getUserProgress, getUserSubscription } from "@/prisma/queries";
 import { redirect } from "next/navigation";
 import { Quiz } from "../Quiz";
 
@@ -11,6 +11,8 @@ type Props = {
 const LessonIdPage = async ({params}: Props) => {
 	const lesson = await getLesson(parseInt(params.lessonId));
 	const userProgress = await getUserProgress();
+    const userSubscription = await getUserSubscription()
+
 
 	if (!lesson || !userProgress) {
 		redirect("/learn");
@@ -27,7 +29,7 @@ const LessonIdPage = async ({params}: Props) => {
 			initialLessonChallenges={lesson.Challenges}
 			initialHearts={userProgress.hearts}
 			initialPercentage={initialPercentage}
-			userSubscription={null}
+			userSubscription={userSubscription}
 		/>
 	);
 };
