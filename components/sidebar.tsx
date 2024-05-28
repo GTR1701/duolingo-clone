@@ -48,6 +48,7 @@ export const Sidebar = ({ className }: Props) => {
 					iconSrc="/quests.svg"
 				/>
 				<SidebarItem label="shoup" href="/shop" iconSrc="/shop.svg" />
+				<SidebarItem label="Profile" href="/profile" iconSrc="/mascot.svg" />
 			</div>
 			<div className="p-4 flex flex-row justify-between items-center">
 				<ClerkLoading>

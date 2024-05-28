@@ -464,3 +464,40 @@ export const getTopUsers = cache(async () => {
 
     return data
 })
+
+export const getUserCompletedLessons = cache(async () => {
+    const { userId } = auth()
+
+    if (!userId) {
+        return []
+    }
+
+    const data = await prisma.lessonProgress.findMany({
+        where: {
+            userId,
+            completed: true
+        }
+    })
+
+    return data.length
+})
+
+export const getUserQuests = cache(async () => {
+    const { userId } = auth()
+
+    if (!userId) {
+        return []
+    }
+
+    const data = await prisma.userQuests.findMany({
+        where: {
+            userId
+        },
+        include:{
+            Quests: true
+        }
+    })
+
+    return data
+})
+

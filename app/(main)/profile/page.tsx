@@ -2,19 +2,19 @@ import { FeedWrapper } from "@/components/FeedWrapper";
 import Promo from "@/components/Promo";
 import { StickyWrapper } from "@/components/StickyWrapper";
 import { UserProgress } from "@/components/UserProgress";
-import { Progress } from "@/components/ui/progress";
 import {
 	getCourseById,
+	getUserCompletedLessons,
 	getUserProgress,
-	getUserQuests,
 	getUserSubscription,
 } from "@/prisma/queries";
+import { auth, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import StatisticsItem from "./StatisticsItem";
 
-
-const QuestsPage = async () => {
-	const quests = await getUserQuests()
+const UserProfilePage = async () => {
+	const {} = auth();
 	const userProgress = await getUserProgress();
 	if (!userProgress || !userProgress.activeCourseId) {
 		redirect("/courses");
@@ -27,6 +27,7 @@ const QuestsPage = async () => {
 	const userSubscription = await getUserSubscription();
 	const isPro = !!userSubscription?.isActive;
 
+	const userCompletedLessons = await getUserCompletedLessons();
 	return (
 		<div className="flex flex-row-reverse gap-[48px] px-6">
 			<StickyWrapper>
@@ -41,47 +42,43 @@ const QuestsPage = async () => {
 			<FeedWrapper>
 				<div className="w-full flex flex-col items-center">
 					<Image
-						src="/quests.svg"
-						alt="Quests"
+						src={userProgress.userImageSrc}
+						alt="Profile Image"
 						width={90}
 						height={90}
 					/>
 					<h1 className="text-center font-bold text-neutral-800 dark:text-neutral-100 text-2xl my-6">
-						Quests
+						{userProgress.userName}
 					</h1>
-					<p className="text-muted-foreground text-center text-lg mb-6">
-						Complete quests by completing lessons and earning XP.
-					</p>
-					<ul className="w-full">
-						{quests.map((quest, index) => {
-							const progress =
-								(quest.progress / quest.Quests.objective) * 100;
-
-							return (
-								<div
-									className="flex items-center w-full p-4 gap-x-4 border-t-2"
-									key={quest.Quests.title}
-								>
-									<Image
-										src="/points.svg"
-										alt="Points"
-										width={60}
-										height={60}
-									/>
-									<div className="flex flex-col gap-y-4 w-full">
-										<p className="text-neutral-700 dark:text-neutral-100 text-xl font-bold">
-											{quest.Quests.title}
-										</p>
-										<Progress value={progress} />
-									</div>
-								</div>
-							);
-						})}
-					</ul>
+					<h1 className="text-left font-bold text-neutral-800 dark:text-neutral-100 text-2xl my-6 border-t-2 w-full pt-4">
+						Statistics
+					</h1>
+					<div className="items-center grid grid-cols-2 w-full gap-4">
+						<StatisticsItem
+							imgSrc={"/points.svg"}
+							itemData={userProgress.points}
+							itemName="Total Points"
+						/>
+						<StatisticsItem
+							imgSrc={"/EXP.svg"}
+							itemData={userProgress.experience}
+							itemName="Total XP"
+						/>
+						<StatisticsItem
+							imgSrc={"/lessons.svg"}
+							itemData={userCompletedLessons}
+							itemName="Total Completed Lessons"
+						/>
+						<StatisticsItem
+							imgSrc={activeCourse.imageSrc}
+							itemData={activeCourse.title}
+							itemName="Active Course"
+						/>
+					</div>
 				</div>
 			</FeedWrapper>
 		</div>
 	);
 };
 
-export default QuestsPage;
+export default UserProfilePage;

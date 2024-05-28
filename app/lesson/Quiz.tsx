@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { ChallengeOptions, Challenges, UserSubscription } from "@prisma/client";
 import { usePracticeModal } from "@/store/usePracticeModal";
 import { upsertLessonProgress } from "@/actions/lessonProgress";
+import { upsertUserQuests } from "@/actions/userQuests";
 
 type Props = {
 	initialLessonId: number;
@@ -161,6 +162,8 @@ export const Quiz = ({
 
 		if (challenges.length === activeIndex + 1) {
 			upsertLessonProgress(lessonId)
+			upsertUserQuests(10, "XP")
+			upsertUserQuests(1, "LESSON")
 		}
 	};
 
@@ -197,7 +200,7 @@ export const Quiz = ({
 					</h1>
 					<div className="flex items-center gap-x-4 w-full">
 						<ResultCard
-							variant="points"
+							variant="EXP"
 							value={challenges.length * 10}
 						/>
 						<ResultCard variant="hearts" value={hearts} />

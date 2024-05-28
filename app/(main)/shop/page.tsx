@@ -31,7 +31,7 @@ const ShopPage = async () => {
 					hasActiveSubscription={!!userSubscription?.isActive}
 				/>
 				{!isPro && <Promo />}
-				<Quests points={userProgress.points} />
+				<Quests />
 			</StickyWrapper>
 			<FeedWrapper>
 				<div className="w-full flex flex-col items-center">

@@ -49,7 +49,7 @@ const LearnPage = async () => {
 					hasActiveSubscription={!!userSubscription?.isActive}
 				/>
 				{!isPro && <Promo />}
-				<Quests points={userProgress.points} />
+				<Quests />
 			</StickyWrapper>
 			<FeedWrapper>
 				<Header title={activeCourse.title} />

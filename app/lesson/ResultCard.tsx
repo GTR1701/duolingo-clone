@@ -3,23 +3,23 @@ import Image from "next/image";
 
 type Props = {
 	value: number;
-	variant: "points" | "hearts";
+	variant: "EXP" | "hearts";
 };
 
 const ResultCard = ({ value, variant }: Props) => {
-    const imageSrc = variant === "points" ? "/points.svg" : "/heart.svg";
+    const imageSrc = variant === "EXP" ? "/EXP.svg" : "/heart.svg";
 	return (
 		<div
 			className={cn(
 				"rounded-2xl border-2 w-full",
-				variant === "points" && "bg-orange-400 border-orange-400",
+				variant === "EXP" && "bg-orange-400 border-orange-400",
 				variant === "hearts" && "bg-rose-500 border-rose-500"
 			)}
 		>
 			<div
 				className={cn(
 					"p-1.5 text-white rounded-t-xl font-bold text-center uppercase text-xs",
-					variant === "points" && "bg-orange-400",
+					variant === "EXP" && "bg-orange-400",
 					variant === "hearts" && "bg-rose-500"
 				)}
 			>
@@ -28,7 +28,7 @@ const ResultCard = ({ value, variant }: Props) => {
 			<div
 				className={cn(
 					"rounded-2xl bg-white dark:bg-[#020817] items-center flex justify-center p-6 font-bold text-lg",
-                    variant === "points" && "text-orange-300",
+                    variant === "EXP" && "text-orange-300",
                     variant === "hearts" && "text-rose-400"
 				)}
 			>

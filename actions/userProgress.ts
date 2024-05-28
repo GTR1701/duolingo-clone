@@ -3,6 +3,7 @@
 import { prisma } from "@/prisma/prisma"
 import { getCourseById, getUserProgress, getUserSubscription } from "@/prisma/queries"
 import { auth, currentUser } from "@clerk/nextjs"
+import { randomInt } from "crypto"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -25,6 +26,36 @@ export const upsertUserProgress = async (courseId: number) => {
     }
 
     const existingUserProgress = await getUserProgress()
+
+    const quests = await prisma.quests.findMany()
+    const userQuests = await prisma.userQuests.findMany({
+        where: {
+            userId
+        }
+    })
+    if(!userQuests){
+        for (let i = 0; i < 3; i++) {
+            await prisma.userQuests.create({
+                data: {
+                    userId,
+                    questId: quests[randomInt(1, quests.length)].id
+                }
+            })
+        }
+    }
+
+    if(userQuests.length < 3){
+        const numberOfQuests = userQuests.length
+
+        for (let i = 0; i < 3 - numberOfQuests; i++) {
+            await prisma.userQuests.create({
+                data: {
+                    userId,
+                    questId: quests[randomInt(1, quests.length)].id
+                }
+            })
+        }
+    }
 
     if (existingUserProgress) {
         await prisma.userProgress.update({
@@ -138,6 +169,28 @@ export const refillHearts = async () => {
         data: {
             hearts: 5,
             points: currentUserProgress.points - 50
+        },
+        where: {
+            userId: currentUserProgress.userId
+        }
+    })
+
+    revalidatePath("/learn")
+    revalidatePath("/shop")
+    revalidatePath("/quests")
+    revalidatePath("/leaderboard")
+}
+
+export const addPoints = async (points: number) => {
+    const currentUserProgress = await getUserProgress()
+
+    if(!currentUserProgress) {
+        throw new Error("User progress not found")
+    }
+
+    await prisma.userProgress.update({
+        data: {
+            points: currentUserProgress.points + points
         },
         where: {
             userId: currentUserProgress.userId
