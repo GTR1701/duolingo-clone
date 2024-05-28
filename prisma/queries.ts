@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
 import { auth } from "@clerk/nextjs";
-import { LessonButton } from '../app/(main)/learn/LessonButton';
+import { ExcerciseButton } from '../app/(main)/learn/ExcerciseButton';
 
 export const getCourses = cache(async () => {
     const data = await prisma.courses.findMany()
@@ -36,13 +36,20 @@ export const getCourseById = cache(async (id: number) => {
                     order: "asc"
                 },
                 include: {
-                    Lessons: {
+                    Excercises: {
                         orderBy: {
                             order: "asc"
+                        },
+                        include: {
+                            Lessons: {
+                                orderBy: {
+                                    order: "asc"
+                                }
+                            }
                         }
                     }
                 }
-            
+
             }
         }
     })
@@ -52,7 +59,7 @@ export const getCourseById = cache(async (id: number) => {
 
 export const getUnits = cache(async () => {
     const userProgress = await getUserProgress()
-    const { userId } = await auth()
+    const { userId } = auth()
     if (!userId || !userProgress?.activeCourseId) {
         return []
     }
@@ -65,17 +72,17 @@ export const getUnits = cache(async () => {
             order: "asc"
         },
         include: {
-            Lessons: {
+            Excercises: {
                 orderBy: {
                     order: "asc"
                 },
                 include: {
-                    Challenges: {
+                    Lessons: {
                         orderBy: {
                             order: "asc"
                         },
                         include: {
-                            ChallengeProgress: {
+                            LessonProgress: {
                                 where: {
                                     userId
                                 }
@@ -87,32 +94,46 @@ export const getUnits = cache(async () => {
         }
     })
 
+    // console.table(data)
+    // console.table(data[0].Excercises)
+    // console.table(data[0].Excercises[0].Lessons)
+    // console.table(data[0].Excercises[0].Lessons[0].LessonProgress)
+
     const normalizedData = data.map((unit) => {
-        const lessonsWithCompletedStatus = unit.Lessons.map((lesson) => {
-            if (lesson.Challenges.length === 0) {
+        const excercisesWithCompletedStatus = unit.Excercises.map((excercise) => {
+            if (excercise.Lessons.length === 0) {
                 return {
-                    ...lesson,
+                    ...excercise,
                     completed: false
                 }
             }
-            const allCompletedChallenges = lesson.Challenges.every((challenge) => {
-                return challenge.ChallengeProgress
-                    && challenge.ChallengeProgress.length > 0
-                    && challenge.ChallengeProgress.every((progress) => progress.completed)
+
+            const lessonsWithCompletedStatus = excercise.Lessons.map((lesson) => {
+                const completed = lesson.LessonProgress
+                    && lesson.LessonProgress.length > 0
+                    && lesson.LessonProgress[0]?.completed
+
+                return {
+                    ...lesson,
+                    completed
+                }
             })
 
-            return {
-                ...lesson,
-                completed: allCompletedChallenges
+            const allLessonsCompleted = lessonsWithCompletedStatus.every((lesson) => lesson.completed)
+            return{
+                ...excercise,
+                Lessons: lessonsWithCompletedStatus,
+                completed: allLessonsCompleted
             }
         })
 
         return {
             ...unit,
-            lessons: lessonsWithCompletedStatus
+            excercises: excercisesWithCompletedStatus
         }
     })
 
+    // console.log(normalizedData[0].Excercises[0])
 
     return normalizedData
 })
@@ -132,13 +153,75 @@ export const getCourseProgress = cache(async () => {
             courseId: userProgress.activeCourseId
         },
         include: {
-            Lessons: {
+            Excercises: {
                 orderBy: {
                     order: "asc"
                 },
                 include: {
                     unit: true,
+                    Lessons: {
+                        orderBy: {
+                            order: "asc"
+                        },
+                        include: {
+                            LessonProgress: {
+                                where: {
+                                    userId
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    const firstUncompletedExcercise = unitsInActiveCourse.flatMap((unit) => unit.Excercises).find((excercise) => {
+        return excercise.Lessons.some((lesson) => {
+            return !lesson.LessonProgress
+                || lesson.LessonProgress.length === 0
+            // || !challenge.ChallengeProgress.some((progress) => progress.completed === false)
+        })
+    })
+
+    return {
+        activeExcercise: firstUncompletedExcercise,
+        activeExcerciseId: firstUncompletedExcercise?.id,
+    }
+})
+
+export const getExcerciseProgress = cache(async () => {
+    const { userId } = auth()
+
+    if (!userId) {
+        return null
+    }
+
+    const courseProgress = await getCourseProgress()
+
+    if (!courseProgress?.activeExcerciseId) {
+        return null
+    }
+
+    const data = await prisma.excercises.findFirst({
+        where: {
+            id: courseProgress.activeExcerciseId
+        },
+        include: {
+            Lessons: {
+                orderBy: {
+                    order: "asc"
+                },
+                include: {
+                    LessonProgress: {
+                        where: {
+                            userId
+                        }
+                    },
                     Challenges: {
+                        orderBy: {
+                            order: "asc"
+                        },
                         include: {
                             ChallengeProgress: {
                                 where: {
@@ -152,21 +235,23 @@ export const getCourseProgress = cache(async () => {
         }
     })
 
-    const firstUncompletedLesson = unitsInActiveCourse.flatMap((unit) => unit.Lessons).find((lesson) => {
-        return lesson.Challenges.some((challenge) => {
-            return !challenge.ChallengeProgress
-                || challenge.ChallengeProgress.length === 0
-            // || !challenge.ChallengeProgress.some((progress) => progress.completed === false)
-        })
+    if (!data || !data.Lessons) {
+        return null
+    }
+
+    const firstUncompletedLesson = data.Lessons.find((lesson) => {
+        return !lesson.LessonProgress
+            || lesson.LessonProgress.length === 0
     })
+
     return {
         activeLesson: firstUncompletedLesson,
-        activeLessonId: firstUncompletedLesson?.id,
+        activeLessonId: firstUncompletedLesson?.id
     }
 })
 
-export const getLesson = cache(async (id?: number) => {
-    const { userId } = await auth()
+export const getExcercise = cache(async (id?: number) => {
+    const { userId } = auth()
 
     if (!userId) {
         return null
@@ -174,15 +259,83 @@ export const getLesson = cache(async (id?: number) => {
 
     const courseProgress = await getCourseProgress()
 
-    const lessonId = id || courseProgress?.activeLessonId
+    const excerciseId = id || courseProgress?.activeExcerciseId
 
-    if (!lessonId) {
+    if (!excerciseId) {
+        return null
+    }
+
+    const data = await prisma.excercises.findFirst({
+        where: {
+            id: excerciseId
+        },
+        include: {
+            Lessons: {
+                orderBy: {
+                    order: "asc"
+                },
+                include: {
+                    Challenges: {
+                        orderBy: {
+                            order: "asc"
+                        },
+                        include: {
+                            ChallengeOptions: true,
+                            ChallengeProgress: {
+                                where: {
+                                    userId
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    if (!data || !data.Lessons) {
+        return null
+    }
+
+    const normalizedLessons = data.Lessons.map((lesson) => {
+        const completed = lesson.Challenges
+            && lesson.Challenges.length > 0
+            && lesson.Challenges.every((challenge) => {
+                return challenge.ChallengeProgress
+                    && challenge.ChallengeProgress.length > 0
+                    && challenge.ChallengeProgress.every((progress) => progress.completed)
+            })
+
+        return {
+            ...lesson,
+            completed
+        }
+    })
+
+    return {
+        ...data,
+        Lessons: normalizedLessons
+    }
+})
+
+export const getLesson = cache(async (id?: number) => {
+    const { userId } = auth()
+
+    if (!userId) {
+        return null
+    }
+
+    const courseProgress = await getCourseProgress()
+
+    const excerciseId = id || courseProgress?.activeExcerciseId
+
+    if (!excerciseId) {
         return null
     }
 
     const data = await prisma.lessons.findFirst({
         where: {
-            id: lessonId
+            excerciseId: excerciseId
         },
         include: {
             Challenges: {
@@ -196,6 +349,12 @@ export const getLesson = cache(async (id?: number) => {
                             userId
                         }
                     }
+                }
+            },
+            LessonProgress: {
+                where: {
+                    userId,
+                    completed: false
                 }
             }
         }
@@ -222,29 +381,44 @@ export const getLesson = cache(async (id?: number) => {
     }
 })
 
-export type lesson = typeof getLesson extends (...args: any) => Promise<infer T> ? T : never
+export type excercise = typeof getExcercise extends (...args: any) => Promise<infer T> ? T : never
 
-export const getLessonPercentage = cache(async () => {
+export const getExcercisePercentage = cache(async () => {
     const courseProgress = await getCourseProgress()
 
-    if (!courseProgress?.activeLessonId) {
-        return 0
+    if (!courseProgress?.activeExcerciseId) {
+        return {
+            percentage: 0,
+            numberOfCompletedLessons: 0,
+            numberOfLessons: 0
+        }
     }
 
-    const lesson = await getLesson(courseProgress.activeLessonId)
+    const excercise = await getExcercise(courseProgress.activeExcerciseId)
 
-    if (!lesson) {
-        return 0
+    if (!excercise) {
+        return {
+            percentage: 0,
+            numberOfCompletedLessons: 0,
+            numberOfLessons: 0
+        }
     }
 
-    const completedChallenges = lesson.Challenges.filter((challenge) => challenge.completed)
-    const percentage = Math.round((completedChallenges.length / lesson.Challenges.length) * 100)
+    const completedLessons = excercise.Lessons.filter((lesson) => lesson.completed)
+    const percentage = Math.round((completedLessons.length / excercise.Lessons.length) * 100)
 
-    return percentage
+    const numberOfCompletedLessons = completedLessons.length
+    const numberOfLessons = excercise.Lessons.length
+
+    return {
+        percentage,
+        numberOfCompletedLessons,
+        numberOfLessons
+    }
 })
 
 export const getUserSubscription = cache(async () => {
-    const {userId} = await auth()
+    const { userId } = await auth()
 
     if (!userId) {
         return null
@@ -256,7 +430,7 @@ export const getUserSubscription = cache(async () => {
         }
     })
 
-    if(!data) {
+    if (!data) {
         return null
     }
 
@@ -269,12 +443,12 @@ export const getUserSubscription = cache(async () => {
 })
 
 export const getTopUsers = cache(async () => {
-    const {userId} = await auth()
+    const { userId } = auth()
 
     if (!userId) {
         return []
     }
-    
+
     const data = await prisma.userProgress.findMany({
         orderBy: {
             points: "desc"

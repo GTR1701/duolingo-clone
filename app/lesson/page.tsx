@@ -1,9 +1,13 @@
-import { getLesson, getUserProgress, getUserSubscription } from "@/prisma/queries";
+import { getExcercise, getExcercisePercentage, getLesson, getUserProgress, getUserSubscription } from "@/prisma/queries";
 import { redirect } from "next/navigation";
 import { Quiz } from "./Quiz";
 
 const LessonPage = async () => {
-	const lesson = await getLesson();
+	const excercise = await getExcercise();
+	const {numberOfCompletedLessons} = await getExcercisePercentage();
+
+	const lesson = excercise?.Lessons[numberOfCompletedLessons];
+
 	const userProgress = await getUserProgress();
 	const userSubscription = await getUserSubscription();
 
@@ -12,6 +16,7 @@ const LessonPage = async () => {
 	}
 
 	const initialPercentage =
+	//@ts-ignore
 		(lesson?.Challenges.filter((challenge) => challenge.completed).length /
 			lesson.Challenges.length) *
 		100;
@@ -19,6 +24,7 @@ const LessonPage = async () => {
 	return (
 		<Quiz
 			initialLessonId={lesson.id}
+			// @ts-ignore
 			initialLessonChallenges={lesson.Challenges}
 			initialHearts={userProgress.hearts}
 			initialPercentage={initialPercentage}

@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 export const upsertUserProgress = async (courseId: number) => {
-    const { userId } = await auth()
+    const { userId } = auth()
     const user = await currentUser()
 
     if (!userId) {
@@ -20,7 +20,7 @@ export const upsertUserProgress = async (courseId: number) => {
         throw new Error("Course not found")
     }
 
-    if(!course.Units.length || !course.Units[0].Lessons.length) {
+    if(!course.Units.length || !course.Units[0].Excercises.length) {
         throw new Error("Course is empty")
     }
 

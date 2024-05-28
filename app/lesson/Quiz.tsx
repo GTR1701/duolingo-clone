@@ -19,6 +19,7 @@ import Confetti from "react-confetti";
 import { toast } from "sonner";
 import { ChallengeOptions, Challenges, UserSubscription } from "@prisma/client";
 import { usePracticeModal } from "@/store/usePracticeModal";
+import { upsertLessonProgress } from "@/actions/lessonProgress";
 
 type Props = {
 	initialLessonId: number;
@@ -87,11 +88,12 @@ export const Quiz = ({
 		setActiveIndex((current) => current + 1);
 	};
 
+	
 	const onSelect = (id: number) => {
 		if (status !== "none") return;
 		setSelectedOption(id);
 	};
-
+	
 	const onContinue = () => {
 		if (!selectedOption) return;
 		if (status === "wrong") {
@@ -100,7 +102,9 @@ export const Quiz = ({
 			return;
 		}
 		if (status === "correct") {
-			onNext();
+			if(challenges.length !== activeIndex + 1){
+				onNext();
+			}
 			setStatus("none");
 			setSelectedOption(undefined);
 			return;
@@ -154,10 +158,15 @@ export const Quiz = ({
 					);
 			});
 		}
+
+		if (challenges.length === activeIndex + 1) {
+			upsertLessonProgress(lessonId)
+		}
 	};
 
 	//Finish Screen
-	if (challenge === null || challenge === undefined || !challenge) {
+	if (challenge === null || challenge === undefined || !challenge || challenges.length === activeIndex || percentage === 100) {
+		
 		return (
 			<div className="dark:bg-[#020817] h-[calc(100vh-140px)]">
 				{finishAudio}

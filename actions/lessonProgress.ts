@@ -5,7 +5,7 @@ import { getUserProgress, getUserSubscription } from "@/prisma/queries"
 import { auth } from "@clerk/nextjs"
 import { revalidatePath } from "next/cache"
 
-export const upsertChallengeProgress = async (challengeId: number) => {
+export const upsertLessonProgress = async (lessonId: number) => {
     const { userId } = auth()
 
     if (!userId) {
@@ -13,50 +13,44 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     }
 
     const currentUserProgress = await getUserProgress()
-    const userSubscription = await getUserSubscription()
 
     if (!currentUserProgress) {
         throw new Error("User progress not found")
     }
 
-    const challenge = await prisma.challenges.findFirst({
+    const lesson = await prisma.lessons.findFirst({
         where: {
-            id: challengeId
+            id: lessonId
         }
     })
 
-    if (!challenge) {
-        throw new Error("Challenge not found")
+    if (!lesson) {
+        throw new Error("Lesson not found")
     }
 
-    const lessonId = challenge.lessonId
-
-    const existingChallengeProgress = await prisma.challengeProgress.findFirst({
+    const existingLessonProgress = await prisma.lessonProgress.findFirst({
         where: {
             userId,
-            challengeId
+            lessonId
         }
     })
 
-    const isPractice = !!existingChallengeProgress
-
-    if (currentUserProgress.hearts === 0 && !isPractice && !userSubscription?.isActive) {
-        return { error: "hearts" }
-    }
+    const isPractice = !!existingLessonProgress
 
     if (isPractice) {
-        await prisma.challengeProgress.update({
+        await prisma.lessonProgress.update({
             where: {
-                id: existingChallengeProgress.id
+                id: existingLessonProgress.id
             },
             data: {
                 completed: true
             }
         })
 
+        // TODO: Change exp to env variable
         await prisma.userProgress.update({
             data: {
-                hearts: Math.min(currentUserProgress.hearts + 1, 5),
+                experience: currentUserProgress.experience + 10
             },
             where: {
                 userId
@@ -71,14 +65,23 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         return
     }
 
-    await prisma.challengeProgress.create({
+    await prisma.lessonProgress.create({
         data: {
             userId,
-            challengeId,
+            lessonId,
             completed: true
         }
     })
 
+    // TODO: Change exp to env variable
+    await prisma.userProgress.update({
+        data: {
+            experience: currentUserProgress.experience + 10
+        },
+        where: {
+            userId
+        }
+    })
     revalidatePath('/learn')
     revalidatePath('/lesson')
     revalidatePath('/quests')

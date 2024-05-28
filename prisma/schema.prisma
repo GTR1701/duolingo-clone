@@ -32,28 +32,31 @@ model Units {
 }
 
 model Excercises {
-  id         Int          @id @default(autoincrement())
-  title      String
-  unit       Units        @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId     Int
-  order      Int
-  Challenges Challenges[]
-  Lessons    Lessons[]
+  id      Int       @id @default(autoincrement())
+  title   String
+  unit    Units     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId  Int
+  order   Int
+  Lessons Lessons[]
 }
 
 model Lessons {
-  id          Int        @id @default(autoincrement())
-  excerciseId Int
-  excercise   Excercises @relation(fields: [excerciseId], references: [id], onDelete: Cascade)
-  order       Int
+  id             Int              @id @default(autoincrement())
+  title          String
+  excerciseId    Int
+  excercise      Excercises       @relation(fields: [excerciseId], references: [id], onDelete: Cascade)
+  completed      Boolean          @default(false)
+  order          Int
+  Challenges     Challenges[]
+  LessonProgress LessonProgress[]
 }
 
 model Challenges {
   id                Int                 @id @default(autoincrement())
-  excercise         Excercises          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson            Lessons             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId          Int
-  type              String
   question          String
+  type              String
   order             Int
   ChallengeOptions  ChallengeOptions[]
   ChallengeProgress ChallengeProgress[]
@@ -75,6 +78,14 @@ model ChallengeProgress {
   challengeId Int
   userId      String
   completed   Boolean    @default(false)
+}
+
+model LessonProgress {
+  id        Int     @id @default(autoincrement())
+  userId    String
+  lessonId  Int
+  completed Boolean @default(false)
+  Lesson    Lessons @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 model UserProgress {

@@ -4,7 +4,7 @@ import { UserProgress } from "@/components/UserProgress";
 import {
 	getCourseById,
 	getCourseProgress,
-	getLessonPercentage,
+	getExcercisePercentage,
 	getUnits,
 	getUserProgress,
 	getUserSubscription,
@@ -27,11 +27,14 @@ const LearnPage = async () => {
 	}
 
 	const units = await getUnits();
+	if(!units) {
+		redirect("/courses");
+	}
 	const courseProgress = await getCourseProgress();
 	if (!courseProgress) {
 		redirect("/courses");
 	}
-	const lessonPercentage = await getLessonPercentage();
+	const excercisePercentage = await getExcercisePercentage();
 
 	const userSubscription = await getUserSubscription();
 
@@ -57,9 +60,9 @@ const LearnPage = async () => {
 							order={unit.order}
 							description={unit.description}
 							title={unit.title}
-							lessons={unit.lessons}
-							activeLesson={courseProgress.activeLesson}
-							activeLessonPercentage={lessonPercentage}
+							excercises={unit.excercises}
+							activeExcercise={courseProgress.activeExcercise}
+							activeExcercisePercentage={excercisePercentage}
 						/>
 					</div>
 				))}

@@ -1,15 +1,20 @@
-import { Lessons, Prisma, Units } from "@prisma/client";
+import { Excercises, Units, Lessons } from '@prisma/client';
 import { UnitBanner } from "./UnitBanner";
-import { LessonButton } from "./LessonButton";
+import { ExcerciseButton } from "./ExcerciseButton";
+import { redirect } from 'next/navigation';
 
 type Props = {
 	id: number;
 	order: number;
 	title: string;
 	description: string;
-	lessons: Partial<Lessons & { completed: boolean }>[];
-	activeLesson: Partial<Lessons & Units> | undefined;
-	activeLessonPercentage: number;
+	excercises: Partial<Excercises & { completed: boolean }>[];
+	activeExcercise: Partial<Excercises & Units> | undefined;
+	activeExcercisePercentage: {
+		percentage: number;
+		numberOfCompletedLessons: number;
+		numberOfLessons: number;
+	};
 };
 
 export const Unit = ({
@@ -17,27 +22,33 @@ export const Unit = ({
 	order,
 	title,
 	description,
-	lessons,
-	activeLesson,
-	activeLessonPercentage,
+	excercises,
+	activeExcercise,
+	activeExcercisePercentage,
 }: Props) => {
+	if(!excercises){
+		redirect("/courses");
+	}
 	return (
 		<>
 			<UnitBanner title={title} description={description} />
 			<div className="flex items-center flex-col relative">
-				{lessons.map((lesson, index) => {
-					const isCurrent = lesson.id === activeLesson?.id;
-					const isLocked = !lesson.completed && !isCurrent;
+				{excercises.map((excercise, index) => {
+					const isCurrent = excercise.id === activeExcercise?.id;
+					const isLocked = !excercise.completed && !isCurrent;
 
 					return (
-						<LessonButton
-							key={lesson.id}
-							id={lesson.id}
+						<ExcerciseButton
+							key={excercise.id}
+							id={excercise.id}
+							title={excercise.title}
 							index={index}
-							totalCount={lessons.length - 1}
+							// @ts-ignore
+							totalCount={excercise.Lessons.length}
 							current={isCurrent}
 							locked={isLocked}
-							percentage={activeLessonPercentage}
+							completionPercentage={activeExcercisePercentage}
+							initialExcercise={excercise}
 						/>
 					);
 				})}
